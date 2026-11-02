@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Pet Detectives</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--bg:#fff4d6;--ink:#2b2a4c;--card:#fff;--blue:#3a86ff;--green:#2fbf71;--red:#ef476f;--yellow:#ffc933;--cat:#ff9f43;--dog:#7a5cff;--fish:#2bb3e6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Baloo 2","Comic Sans MS","Trebuchet MS",sans-serif;font-size:20px}
+main{max-width:560px;margin:0 auto;padding:14px}
+h1{font-size:2rem;margin:.2em 0;text-align:center;font-weight:800}
+h2{font-size:1.5rem;margin:.2em 0;text-align:center}
+.card{background:var(--card);border-radius:24px;padding:16px;margin:12px 0;border:4px solid var(--ink)}
+.info{text-align:center;font-size:1.15rem;line-height:1.3}
+.big{font-size:4rem;text-align:center;line-height:1}
+button{font:inherit;font-weight:700;border:4px solid var(--ink);border-radius:18px;padding:8px 18px;background:var(--yellow);color:var(--ink);cursor:pointer;min-height:48px}
+button:active{transform:scale(.95)}
+button:focus-visible,input:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
+.go{background:var(--green);color:#fff;font-size:1.3rem;display:block;margin:12px auto}
+.row{display:flex;align-items:center;gap:8px;margin:10px 0}
+.lab{width:84px;font-weight:800;font-size:1.1rem}
+.fill{flex:1;min-height:52px;display:flex;flex-wrap:wrap;align-items:center;gap:2px;background:#f4f1ff;border-radius:14px;padding:6px}
+.pm{width:48px;padding:0;font-size:1.5rem}
+.tg{position:relative;display:inline-flex;gap:5px;margin-right:12px}
+.tg i{width:6px;height:34px;background:var(--ink);border-radius:3px}
+.tg.five::after{content:"";position:absolute;left:-5px;right:-5px;top:50%;height:5px;margin-top:-2px;background:var(--red);transform:rotate(-20deg);border-radius:3px}
+.star{font-size:2rem}
+table{margin:0 auto;border-collapse:separate;border-spacing:4px}
+td.n{width:28px;text-align:right;font-weight:700;padding-right:4px}
+td.c{width:70px;height:30px;border:3px solid var(--ink);border-radius:8px;background:#f4f1ff;cursor:pointer;padding:0}
+th{font-size:1rem}
+.msg{min-height:2.6em;text-align:center;font-weight:700;font-size:1.15rem}
+.msg.ok{color:#17824a}.msg.no{color:var(--red)}
+.top{display:flex;justify-content:center;gap:6px;font-size:1.8rem}
+.top span{opacity:.3}.top span.on{opacity:1}
+.venn{position:relative;height:230px;border:4px dashed var(--ink);border-radius:18px;margin-top:8px;background:#fafafa}
+.cir{position:absolute;top:30px;height:180px;border-radius:50%;pointer-events:none;border:4px solid var(--ink)}
+.c1{left:4%;width:58%;background:#ff9f4360}.c2{left:38%;width:58%;background:#7a5cff55}
+.zone{position:absolute;top:56px;height:130px;border-radius:14px;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:4px;cursor:pointer;border:3px dotted transparent}
+.zone.hot{border-color:var(--blue);background:#3a86ff22}
+.z1{left:9%;width:27%}.z2{left:37%;width:26%}.z3{left:64%;width:27%}
+.vl{position:absolute;top:2px;font-weight:800;font-size:.95rem}
+.out{margin-top:8px;min-height:64px;border:4px dashed var(--ink);border-radius:18px;padding:6px;text-align:center;cursor:pointer;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:center}
+.out.hot{border-color:var(--blue);background:#3a86ff22}
+.kid{border:3px solid var(--ink);border-radius:14px;background:#fff;padding:2px 8px;font-size:.95rem;font-weight:800;min-height:0;cursor:pointer}
+.kid.sel{background:var(--yellow);transform:scale(1.1)}
+.pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;min-height:48px}
+.opts{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0}
+.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+input{font:inherit;width:100%;border:4px solid var(--ink);border-radius:16px;padding:8px 12px;text-align:center}
+@media(prefers-reduced-motion:reduce){.shake{animation:none}}
+</style></head><body><main>
+<div class="top" id="top" aria-hidden="true"></div>
+<div id="stage"></div>
+</main>
+<script>
+var DATA={Cat:8,Dog:6,Fish:2},EM={Cat:"🐱",Dog:"🐶",Fish:"🐟"},COL={Cat:"var(--cat)",Dog:"var(--dog)",Fish:"var(--fish)"},PETS=["Cat","Dog","Fish"];
+var L=0,team="",S={},sel=null;
+var $=function(id){return document.getElementById(id)};
+function say(t,ok){var m=$("msg");m.textContent=t;m.className="msg "+(ok?"ok":"no");if(!ok){var s=$("stage");s.classList.remove("shake");void s.offsetWidth;s.classList.add("shake")}}
+function bar(){var h="";for(var i=1;i<=4;i++)h+='<span class="'+(i<=L?"on":"")+'">⭐</span>';$("top").innerHTML=h}
+function info(){return '<div class="card info"><b>Our class voted for a favourite pet:</b><br>🐱 Cat: 8 children<br>🐶 Dog: 6 children<br>🐟 Fish: 2 children</div>'}
+function next(){L++;S={};sel=null;show()}
+function btnNext(){return '<button class="go" onclick="next()">Next ➜</button>'}
+
+function show(){bar();var f=[start,tally,picto,barc,venn,final][L];f()}
+
+function start(){
+$("stage").innerHTML='<div class="card"><div class="big">🔍🐾</div><h1>Pet Detectives</h1><p class="info">Help us draw one set of information in four different ways!</p><p class="info">Team name:</p><input id="tn" placeholder="Type your team name" maxlength="24" aria-label="Team name"><button class="go" onclick="team=$(\'tn\').value;next()">Let’s go! 🚀</button></div>'}
+
+function tg(n){var h="",g=Math.floor(n/5),r=n%5,i,j;for(i=0;i<g;i++)h+='<span class="tg five"><i></i><i></i><i></i><i></i></span>';if(r){h+='<span class="tg">';for(j=0;j<r;j++)h+="<i></i>";h+="</span>"}return h}
+function rows(kind){var h="";PETS.forEach(function(p){var n=S.v[p];h+='<div class="row"><div class="lab">'+EM[p]+" "+p+'</div><div class="fill" id="f'+p+'">'+(kind=="t"?tg(n):new Array(n+1).join('<span class="star">⭐</span>'))+'</div><button class="pm" aria-label="Add one '+p+'" onclick="chg(\''+p+'\',1,\''+kind+'\')">+</button><button class="pm" aria-label="Take one away" onclick="chg(\''+p+'\',-1,\''+kind+'\')">−</button></div>'});return h}
+function chg(p,d,k){S.v[p]=Math.max(0,Math.min(k=="t"?10:6,S.v[p]+d));$("f"+p).innerHTML=k=="t"?tg(S.v[p]):new Array(S.v[p]+1).join('<span class="star">⭐</span>');$("msg").textContent=""}
+function chk(k){var bad=PETS.filter(function(p){return S.v[p]!=(k=="t"?DATA[p]:DATA[p]/2)});
+if(!bad.length){say("🎉 Brilliant detective work!",true);$("chk").outerHTML=btnNext()}else say("Not yet! Look at the "+bad[0]+" again. ("+EM[bad[0]]+")",false)}
+
+function tally(){S={v:{Cat:0,Dog:0,Fish:0}};
+$("stage").innerHTML='<h2>1. Tally Chart</h2>'+info()+'<div class="card"><p class="info">Tap <b>+</b> to draw one tally mark for each child. Every 5th mark crosses the others!</p>'+rows("t")+'<div class="msg" id="msg"></div><button class="go" id="chk" onclick="chk(\'t\')">Check ✓</button></div>'}
+
+function picto(){S={v:{Cat:0,Dog:0,Fish:0}};
+$("stage").innerHTML='<h2>2. Pictogram</h2>'+info()+'<div class="card"><p class="info">Key: ⭐ = <b>2 children</b><br>Tap <b>+</b> to add one star for every 2 children.</p>'+rows("p")+'<div class="msg" id="msg"></div><button class="go" id="chk" onclick="chk(\'p\')">Check ✓</button></div>'}
+
+function barc(){S={v:{Cat:0,Dog:0,Fish:0}};
+var h='<table><tr><th></th>'+PETS.map(function(p){return"<th>"+EM[p]+"<br>"+p+"</th>"}).join("")+"</tr>";
+for(var r=10;r>=1;r--){h+='<tr><td class="n">'+r+"</td>"+PETS.map(function(p){return'<td class="c" id="b'+p+r+'" onclick="bc(\''+p+"',"+r+')" aria-label="'+p+" "+r+'"></td>'}).join("")+"</tr>"}
+h+='<tr><td class="n">0</td><td colspan="3" style="text-align:center;font-weight:700">Pet (1 square = 1 child)</td></tr></table>';
+$("stage").innerHTML='<h2>3. Bar Chart</h2>'+info()+'<div class="card"><p class="info">Tap a square to colour the bar up to that number.</p>'+h+'<div class="msg" id="msg"></div><button class="go" id="chk" onclick="chkb()">Check ✓</button></div>'}
+function bc(p,r){S.v[p]=S.v[p]==r?r-1:r;for(var i=1;i<=10;i++)$("b"+p+i).style.background=i<=S.v[p]?COL[p]:"";$("msg").textContent=""}
+function chkb(){var bad=PETS.filter(function(p){return S.v[p]!=DATA[p]});
+if(!bad.length){say("🎉 Wow, perfect bars!",true);$("chk").outerHTML=btnNext()}else say("Not yet! Check the "+bad[0]+" bar. It should reach "+DATA[bad[0]]+".",false)}
+
+var KIDS=[["Ali","a"],["Sara","a"],["Hana","m"],["Youssef","m"],["Mona","d"],["Adam","o"]];
+function venn(){S={pl:{}};
+$("stage").innerHTML='<h2>4. Venn Diagram</h2><div class="card info"><b>Who likes what?</b><br>Ali and Sara like only cats. Hana and Youssef like cats AND dogs. Mona likes only dogs. Adam likes neither.</div><div class="card"><p class="info">Tap a child, then tap where they belong.</p><div class="pool" id="pool"></div><div class="venn"><span class="vl" style="left:8%">🐱 Likes cats</span><span class="vl" style="right:6%">🐶 Likes dogs</span><div class="cir c1"></div><div class="cir c2"></div><div class="zone z1" id="za" onclick="put(\'a\')"></div><div class="zone z2" id="zm" onclick="put(\'m\')"></div><div class="zone z3" id="zd" onclick="put(\'d\')"></div></div><div class="out" id="zo" onclick="put(\'o\')"></div><p class="info" style="margin:4px">Middle = likes both. Outside the circles = likes neither.</p><div class="msg" id="msg"></div><div id="nx"></div></div>';
+draw()}
+function kb(k){return'<button class="kid'+(sel==k[0]?" sel":"")+'" onclick="event.stopPropagation();pick(\''+k[0]+'\')">'+k[0]+"</button>"}
+function draw(){var z={a:"",m:"",d:"",o:""},pool="";KIDS.forEach(function(k){var w=S.pl[k[0]];if(w)z[w]+=kb(k);else pool+=kb(k)});
+$("pool").innerHTML=pool;["a","m","d"].forEach(function(x){$("z"+x).innerHTML=z[x]});$("zo").innerHTML=z.o||'<span style="opacity:.5">Likes neither</span>';
+["za","zm","zd","zo"].forEach(function(i){$(i).className=(i=="zo"?"out":"zone z"+{za:1,zm:2,zd:3}[i])+(sel?" hot":"")});
+if(Object.keys(S.pl).length==6){$("nx").innerHTML=btnNext()}}
+function pick(n){sel=sel==n?null:n;S.pl[n]&&delete S.pl[n];draw();$("msg").textContent=sel?"Where does "+sel+" go?":""}
+function put(z){if(!sel)return;var k=KIDS.filter(function(x){return x[0]==sel})[0];
+if(k[1]==z){S.pl[sel]=z;say("✅ Yes! "+sel+" goes there.",true);sel=null;draw();if(Object.keys(S.pl).length==6)say("🎉 Amazing! All children are in the right place!",true)}
+else{say("Hmm, think again! Which pets does "+sel+" like?",false)}}
+
+function final(){S={q1:0,q2:0};
+$("stage").innerHTML='<h2>Think and talk 💭</h2><div class="card"><p class="info"><b>1) Which pet is the most popular?</b></p><div class="opts" id="o1"></div><p class="info"><b>2) How many children voted altogether?</b><br>Hint: add the tally numbers together.</p><div class="opts" id="o2"></div><div class="msg" id="msg"></div><div id="nx"></div></div>';
+[["o1",["Cat","Dog","Fish"],"Cat","q1"],["o2",[12,14,16,18],16,"q2"]].forEach(function(q){q[1].forEach(function(v){var b=document.createElement("button");b.textContent=(EM[v]||"")+" "+v;b.onclick=function(){if(v===q[2]){S[q[3]]=1;b.style.background="var(--green)";b.style.color="#fff";say("✅ Correct!",true);if(S.q1&&S.q2){say("🎉 You solved the case!",true);$("nx").innerHTML='<button class="go" onclick="L++;cert()">Get my badge 🏅</button>'}}else say("Try again! 🤔",false)};$(q[0]).appendChild(b)})})}
+function cert(){bar();$("stage").innerHTML='<div class="card"><div class="big">🏅</div><h1>Super Pet Detectives!</h1><p class="info">'+(team?"<b>"+team.replace(/[<>&]/g,"")+"</b><br>":"")+'solved the case with a tally chart, pictogram, bar chart and Venn diagram!</p><div class="big">🐱🐶🐟</div><button class="go" onclick="L=0;team=\'\';show()">Play again 🔄</button></div>'}
+show();
+</script></body></html>
